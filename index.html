@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Controle de estoque</title>
+</head>
+<body>
+    <h1>Controle de Estoque</h1>
+    <p>Atualize as informações das quantidades de peças disponíveis</p>
+
+    <fieldset>
+        <legend>Data: </legend>
+        <input type="date" name="data" id="data">
+    </fieldset>
+
+    <fieldset>
+        <legend>Selecione o tecido: </legend>
+        <select id="tecidoSelect" onchange="updateQuantity()">
+            <option value="">Selecione uma opção</option>
+        </select>
+    </fieldset>
+    <br>
+
+    <fieldset>
+        <legend>Selecione a opção correspondente: </legend>
+        <span>
+            <input type="radio" name="entradasousaidas" id="entrada" value="entrada">
+            <label for="entrada">Entrada de tecido</label>
+            <br>
+            <input type="radio" name="entradasousaidas" id="saida" value="saida">
+            <label for="saida">Saída de tecido</label>
+        </span>
+    </fieldset>
+    <br>
+
+    <fieldset>
+        <legend>Digite a quantidade: </legend>
+        <input type="number" id="adjustmentInput" min="1">
+    </fieldset>
+    <br>
+    <button onclick="adjustQuantity()">Atualizar Quantidade</button>
+
+    <p>Quantidade Atual: <input type="number" id="quantityInput" readonly></p>
+
+    <script src="script.js">
+        
+    </script>
+</body>
+</html>
