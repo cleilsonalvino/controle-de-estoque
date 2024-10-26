@@ -1,3 +1,18 @@
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js')
+          .then(registration => {
+              console.log('Service Worker registrado com sucesso:', registration);
+          })
+          .catch(error => {
+              console.log('Falha ao registrar o Service Worker:', error);
+          });
+  });
+}
+
+
+
+
 const apiUrl = "https://sheetdb.io/api/v1/c3b94fdkjdhv1"; // Substitua SEU_API_ID pelo ID da API do SheetDB
         const itemData = {}; // Objeto para armazenar os dados de cada item
       
