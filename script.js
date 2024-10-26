@@ -37,97 +37,107 @@ const apiUrl = "https://sheetdb.io/api/v1/c3b94fdkjdhv1"; // Substitua SEU_API_I
           }
         }
 
-        // Função para ajustar a quantidade com base na entrada ou saída
-        function adjustQuantity() {
-          const selectedId = document.getElementById("tecidoSelect").value;
-          const adjustmentInput = document.getElementById("adjustmentInput").value;
-          const quantityInput = document.getElementById("quantityInput");
-          const isEntrada = document.getElementById("entrada").checked;
-          const isSaida = document.getElementById("saida").checked;
+// Função para ajustar a quantidade com base na entrada ou saída
+function adjustQuantity() {
+  const selectedId = document.getElementById("tecidoSelect").value;
+  const adjustmentInput = document.getElementById("adjustmentInput").value;
+  const quantityInput = document.getElementById("quantityInput");
+  const isEntrada = document.getElementById("entrada").checked;
+  const isSaida = document.getElementById("saida").checked;
 
-          if (!selectedId || !adjustmentInput || (!isEntrada && !isSaida)) {
-            alert("Por favor, selecione o tecido, a quantidade e o tipo de ajuste.");
-            return;
-          }
+  if (!selectedId || !adjustmentInput || (!isEntrada && !isSaida)) {
+      alert("Por favor, selecione o tecido, a quantidade e o tipo de ajuste.");
+      return;
+  }
 
-          // Calcula nova quantidade
-          let newQuantity = itemData[selectedId].QUANTIDADE;
-          if (isEntrada) {
-            newQuantity += Number(adjustmentInput);
-          } else if (isSaida) {
-            newQuantity -= Number(adjustmentInput);
-            if (newQuantity < 0) {
-              alert("A quantidade não pode ser negativa.");
-              return;
-            }
-          }
+  // Calcula nova quantidade
+  let newQuantity = itemData[selectedId].QUANTIDADE;
+  if (isEntrada) {
+      newQuantity += Number(adjustmentInput);
+  } else if (isSaida) {
+      newQuantity -= Number(adjustmentInput);
+      if (newQuantity < 0) {
+          alert("A quantidade não pode ser negativa.");
+          return;
+      }
+  }
 
-          // Atualiza no itemData e na interface
-          itemData[selectedId].QUANTIDADE = newQuantity;
-          quantityInput.value = newQuantity;
+  // Atualiza no itemData e na interface
+  itemData[selectedId].QUANTIDADE = newQuantity;
+  quantityInput.value = newQuantity;
 
-          // Aqui você pode enviar a atualização para o SheetDB
-          updateQuantityInSheetDB(selectedId, newQuantity);
-        }
+  // Atualiza a quantidade no SheetDB e em seguida envia os dados
+  updateQuantityInSheetDB(selectedId, newQuantity)
+      .then(() => submitData()); // Chama submitData após a atualização
+}
 
-        // Função para enviar a nova quantidade ao SheetDB
-        async function updateQuantityInSheetDB(id, newQuantity) {
-        try {
-            await fetch(`${apiUrl}/ID/${id}`, { // Inclui o ID na URL para especificar a linha
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ QUANTIDADE: newQuantity }) // Garante que a coluna esteja correta
-            });
-            submitData()
-            alert("Quantidade atualizada com sucesso!");
-        } catch (error) {
-            console.error("Erro ao atualizar a quantidade no SheetDB:", error);
-        }
-        }
+// Função para enviar a nova quantidade ao SheetDB
+async function updateQuantityInSheetDB(id, newQuantity) {
+  try {
+      await fetch(`${apiUrl}/ID/${id}`, { // Inclui o ID na URL para especificar a linha
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ QUANTIDADE: newQuantity }) // Garante que a coluna esteja correta
+      });
+      alert("Quantidade atualizada com sucesso!");
+  } catch (error) {
+      console.error("Erro ao atualizar a quantidade no SheetDB:", error);
+  }
+}
+
         
-        const sheetDBUrl = 'https://sheetdb.io/api/v1/vzpj4ktxcg9y7'; 
+        const sheetDBUrl = 'https://sheetdb.io/api/v1/c3b94fdkjdhv1?sheet=Dados'; 
 
         function submitData() {
-            const data = document.getElementById('data').value;
-            const tecido = document.getElementById('tecidoSelect').value;
-            const quantidade = parseInt(document.getElementById('adjustmentInput').value);
-        
-            if (!data || !tecido || isNaN(quantidade)) {
-                alert('Por favor, preencha todos os campos.');
-                return;
-            }
-        
-            // Criar o objeto com os dados a serem enviados
-            const entry = {
-                DATA: data,
-                TECIDO: tecido,
-                QUANTIDADE: quantidade
-            };
-        
-            // Enviar os dados para o SheetDB
-            fetch(sheetDBUrl, {
-                method: 'POST', // Usar POST para enviar dados
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(entry) // Enviar como um objeto JSON
-            })
-            .then(response => {
-                if (response.ok) {
-                    alert('Dados enviados com sucesso!');
-                    // Limpar os campos
-                    document.getElementById('data').value = '';
-                    document.getElementById('tecidoSelect').value = '';
-                    document.getElementById('adjustmentInput').value = '';
-                } else {
-                    alert('Erro ao enviar os dados. Código de status: ' + response.status);
-                }
-            })
-            .catch(error => {
-                console.error('Erro:', error);
-                alert('Erro ao enviar os dados.');
-            });
-        }
+          const data = document.getElementById('data').value;
+          const tecido = document.getElementById('tecidoSelect').selectedOptions[0].text; // Obtenha o nome do tecido
+          let quantidade = parseInt(document.getElementById('adjustmentInput').value);
+      
+          // Verifica se a saída foi selecionada
+          const isSaida = document.getElementById("saida").checked;
+      
+          if (isSaida) {
+              quantidade = -Math.abs(quantidade); // Torna a quantidade negativa
+          }
+      
+          if (!data || !tecido || isNaN(quantidade)) {
+              alert('Por favor, preencha todos os campos.');
+              return;
+          }
+      
+          // Criar o objeto com os dados a serem enviados
+          const entry = {
+              DATA: data,
+              TECIDO: tecido,
+              QUANTIDADE: quantidade
+          };
+      
+          // Enviar os dados para o SheetDB
+          fetch(sheetDBUrl, {
+              method: 'POST', // Usar POST para enviar dados
+              headers: {
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(entry) // Enviar como um objeto JSON
+          })
+          .then(response => {
+              if (response.ok) {
+                  alert('Dados enviados com sucesso!');
+                  // Limpar os campos
+                  document.getElementById('data').value = '';
+                  document.getElementById('tecidoSelect').value = '';
+                  document.getElementById('adjustmentInput').value = '';
+              } else {
+                  alert('Erro ao enviar os dados. Código de status: ' + response.status);
+              }
+          })
+          .catch(error => {
+              console.error('Erro:', error);
+              alert('Erro ao enviar os dados.');
+          });
+      }
+      
+      
         
         
 
